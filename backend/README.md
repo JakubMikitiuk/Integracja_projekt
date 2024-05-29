@@ -1,6 +1,6 @@
 #### Snippet of backend(Node.js)`DockerFile`
 
-You will find this `DockerFile` file in the root directory of the project.
+zmiany 
 
 ```bash
 FROM node:13.13.0-stretch-slim
