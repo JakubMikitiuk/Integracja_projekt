@@ -1,47 +1,42 @@
+version: '3.7'
+
 services:
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+  mongo:
+    image: mongo:latest
+    container_name: mongo
     ports:
-      - 3000:3000
-    stdin_open: true
+      - '27017:27017'
     volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    restart: always
-    networks:
-      - react-express
-    depends_on:
-      - backend
+      - mongo-data:/data/db
 
   backend:
-    restart: always
     build:
       context: ./backend
       dockerfile: Dockerfile
+    container_name: backend
+    ports:
+      - '5000:5000'
     volumes:
       - ./backend:/app
       - /app/node_modules
     depends_on:
       - mongo
-    networks:
-      - express-mongo
-      - react-express
-    expose: 
-      - 3000
-  mongo:
-    restart: always
-    image: mongo:4.2.0
-    volumes:
-      - mongo_data:/data/db
-    networks:
-      - express-mongo
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
     ports:
-      - 27017:27017
-networks:
-  react-express:
-  express-mongo:
+      - '3000:3000'
+    restart: always
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - CHOKIDAR_POLLING=true
+    depends_on:
+      - backend
 
 volumes:
-  mongo_data:
+  mongo-data:
