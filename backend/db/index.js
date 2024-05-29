@@ -2,6 +2,8 @@
  * Created by Syed Afzal
  */
 const mongoose = require("mongoose");
+require("dotenv").config();
+
 
 exports.connect = (app) => {
   const options = {
@@ -16,12 +18,12 @@ exports.connect = (app) => {
     mongoose
       .connect(process.env.MONGODB_URI, options)
       .then(() => {
-        console.log("MongoDB is connected");
-        app.emit("ready");
+      console.log("MongoDB is connected");
+      app.emit("ready");
       })
       .catch((err) => {
-        console.log("MongoDB connection unsuccessful, retry after 2 seconds.", err);
-        setTimeout(connectWithRetry, 2000);
+      console.log("MongoDB connection unsuccessful, retry after 2 seconds.", err);
+      setTimeout(connectWithRetry, 2000);
       });
   };
   connectWithRetry();

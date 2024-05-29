@@ -1,7 +1,7 @@
 /**
  * Created by Syed Afzal
  */
-require("./config/config");
+
 
 const express = require("express");
 const path = require("path");

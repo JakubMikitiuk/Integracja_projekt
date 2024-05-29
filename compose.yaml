@@ -1,14 +1,14 @@
 services:
   frontend:
     build:
-      context: frontend
-      target: development
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
       - 3000:3000
     stdin_open: true
     volumes:
-      - ./frontend:/usr/src/app
-      - /usr/src/app/node_modules
+      - ./frontend:/app
+      - /app/node_modules
     restart: always
     networks:
       - react-express
@@ -18,11 +18,11 @@ services:
   backend:
     restart: always
     build:
-      context: backend
-      target: development
+      context: ./backend
+      dockerfile: Dockerfile
     volumes:
-      - ./backend:/usr/src/app
-      - /usr/src/app/node_modules
+      - ./backend:/app
+      - /app/node_modules
     depends_on:
       - mongo
     networks:
@@ -37,8 +37,8 @@ services:
       - mongo_data:/data/db
     networks:
       - express-mongo
-    expose:
-      - 27017
+    ports:
+      - 27017:27017
 networks:
   react-express:
   express-mongo:
