@@ -6,6 +6,7 @@ const { DeathCount } = require("../models/todos/deathcount");
 const fs = require("fs");
 const path = require("path");
 const csv = require("csv-parser");
+const { GdpData } = require('../models/todos/gdpModel');
 
 const routes = (app) => {
   const router = express.Router();
@@ -35,48 +36,56 @@ const routes = (app) => {
       });
   });
 
-  router.post("/import-csv", (req, res) => {
-    DeathCount.countDocuments({}, (err, count) => {
-      if (err) {
-        console.error(e);
-        serverResponses.sendError(res, messages.BAD_REQUEST, err);
-      } else if (count > 0) {
-        
-        serverResponses.sendError(res, messages.NOT_FOUND, 'Collection is not empty');
-        console.error('Collection is not empty');
-      } else {
-        const deathCounts = [];
-  
-        fs.createReadStream(path.join(__dirname, '..', 'data', 'Zgony.csv'))
-          .pipe(csv())
-          .on('data', (row) => {
-            const deathCount = new DeathCount({
-              week: row['Nr tygodnia'],
-              year2016: row['2016'],
-              year2017: row['2017'],
-              year2018: row['2018'],
-              year2019: row['2019'],
-              year2020: row['2020'],
-              year2021: row['2021'],
-              year2022: row['2022'],
-              year2023: row['2023'],
-            });
-  
-            deathCounts.push(deathCount);
-          })
-          .on('end', () => {
-            Promise.all(deathCounts.map(deathCount => deathCount.save()))
-              .then((results) => {
-                serverResponses.sendSuccess(res, messages.SUCCESSFUL, results);
-              })
-              .catch((e) => {
-                console.error(e);
-                serverResponses.sendError(res, messages.BAD_REQUEST, e);
-              });
-          });
-      }
-    });
+  router.get('/gdp-data', async (req, res) => {
+    try {
+      const data = await GdpData.find();
+      res.json(data);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
   });
+
+  router.post("/import-csv", async (req, res) => {
+    try {
+      const count = await GdpData.countDocuments({});
+  
+      if (count > 0) {
+        serverResponses.sendError(res, messages.BAD_REQUEST, 'Collection is not empty');
+        return;
+      }
+  
+      const stream = fs.createReadStream(path.join(__dirname, '..', 'data', 'GDP_DATA.csv')).pipe(csv({ separator: ';' }));
+      const results = [];
+  
+      for await (const row of stream) {
+        console.log('Row from CSV:', row); // Log the row from the CSV file
+  
+        // Create an array of data points for each quarter
+        const dataPoints = Object.keys(row).map(key => {
+          if (key.includes('Q')) { // Only process the properties representing quarters
+            return {
+              quarter: key,
+              value: parseFloat(row[key].replace(',', '.'))
+            };
+          }
+        }).filter(Boolean); // Remove undefined values
+  
+        const data = new GdpData({
+          TIME: row['TIME'],
+          data: dataPoints
+        });
+  
+        const result = await data.save();
+        results.push(result);
+      }
+  
+      serverResponses.sendSuccess(res, messages.SUCCESSFUL, results);
+    } catch (e) {
+      console.error(e);
+      serverResponses.sendError(res, messages.BAD_REQUEST, e);
+    }
+  });
+
   //it's a prefix before api it is useful when you have many modules and you want to
   //differentiate b/w each module you can use this technique
   app.use("/api", router);

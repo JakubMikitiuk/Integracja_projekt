@@ -1,19 +1,19 @@
 const mongoose = require('mongoose');
 
 const DeathCountSchema = new mongoose.Schema({
-  week: {
-    type: Number,
-    required: true,
-  },
-  year2016: Number,
-  year2017: Number,
-  year2018: Number,
-  year2019: Number,
-  year2020: Number,
-  year2021: Number,
-  year2022: Number,
-  year2023: Number,
-});
+
+      
+        year: {
+          type: Number,
+          required: true
+        },
+        quarter1: Number,
+        quarter2: Number,
+        quarter3: Number,
+        quarter4: Number
+      
+    
+  });
 
 const DeathCount = mongoose.model('DeathCount', DeathCountSchema);
 
