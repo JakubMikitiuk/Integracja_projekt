@@ -54,10 +54,10 @@ const routes = (app) => {
         deathCount
           .save()
           .then((result) => {
-            res.status(200).json(result);
+            serverResponses.sendSuccess(res, messages.SUCCESSFUL, result);
           })
           .catch((e) => {
-            res.status(400).json(e);
+            serverResponses.sendError(res, messages.BAD_REQUEST, e);
           });
       })
       .on('end', () => {
