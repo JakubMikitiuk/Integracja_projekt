@@ -24,6 +24,23 @@ export default class App extends React.Component {
       .catch((e) => console.log("Error : ", e));
   }
 
+
+
+
+  handleImport = () => {
+    axios.post('/api/import-csv')
+      .then(response => {
+        console.log(response.data);
+      })
+      .catch(error => {
+        console.error('Error importing CSV:', error);
+      });
+  }
+
+ 
+
+
+
   handleAddTodo = (value) => {
     axios
       .post("/api/todos", { text: value })
@@ -44,6 +61,7 @@ export default class App extends React.Component {
               <h1>Todos</h1>
               <div className="todo-app">
                 <AddTodo handleAddTodo={this.handleAddTodo} />
+                <button onClick={this.handleImport}>Import CSV</button>
                 <TodoList todos={this.state.todos} />
               </div>
             </div>
