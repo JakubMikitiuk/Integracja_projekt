@@ -2,7 +2,10 @@ const express = require("express");
 const serverResponses = require("../utils/helpers/responses");
 const messages = require("../config/messages");
 const { Todo } = require("../models/todos/todo");
-const 
+const { DeathCount } = require("../models/todos/deathcount");
+const fs = require("fs");
+const path = require("path");
+const csv = require("csv-parser");
 
 const routes = (app) => {
   const router = express.Router();
@@ -29,6 +32,36 @@ const routes = (app) => {
       })
       .catch((e) => {
         serverResponses.sendError(res, messages.BAD_REQUEST, e);
+      });
+  });
+
+  router.post("/api/import-csv", (req, res) => {
+    fs.createReadStream(path.join(__dirname, '..', 'data', 'Zgony.csv'))
+      .pipe(csv())
+      .on('data', (row) => {
+        const deathCount = new DeathCount({
+          week: row['Nr tygodnia'],
+          year2016: row['2016'],
+          year2017: row['2017'],
+          year2018: row['2018'],
+          year2019: row['2019'],
+          year2020: row['2020'],
+          year2021: row['2021'],
+          year2022: row['2022'],
+          year2023: row['2023'],
+        });
+  
+        deathCount
+          .save()
+          .then((result) => {
+            res.status(200).json(result);
+          })
+          .catch((e) => {
+            res.status(400).json(e);
+          });
+      })
+      .on('end', () => {
+        console.log('CSV file successfully processed');
       });
   });
 
