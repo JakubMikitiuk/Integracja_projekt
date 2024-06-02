@@ -24,17 +24,7 @@ const NavbarComponent = () => {
         <span className="navbar-toggler-icon"></span>
       </button>
       <div className="collapse navbar-collapse" id="basic-navbar-nav">
-        <ul className="navbar-nav mr-auto">
-          <li className="nav-item">
-            <a className="nav-link">Dataset 1</a>
-          </li>
-          <li className="nav-item">
-            <a className="nav-link">Dataset 2</a>
-          </li>
-          <li className="nav-item">
-            <a className="nav-link">Dataset 3</a>
-          </li>
-        </ul>
+    
         <div className="ml-auto">
           {renderLoginForm()}
         </div>
