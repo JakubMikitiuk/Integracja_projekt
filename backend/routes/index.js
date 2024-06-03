@@ -1,6 +1,5 @@
 const express = require("express");
-const serverResponses = require("../utils/helpers/responses");
-const messages = require("../config/messages");
+
 const fs = require("fs");
 const path = require("path");
 const csv = require("csv-parser");
@@ -25,7 +24,7 @@ const routes = (app) => {
       const count = await GdpData.countDocuments({});
 
       if (count > 0) {
-        serverResponses.sendError(res, messages.ALREADY_EXIST, 'Collection is not empty');
+        res.status(400).json({ message: "Already exists" });
         return;
       }
 
@@ -33,17 +32,17 @@ const routes = (app) => {
       const results = [];
 
       for await (const row of stream) {
-        console.log('Row from CSV:', row); // Log the row from the CSV file
+        console.log('Row from CSV:', row); 
 
-        // Create an array of data points for each quarter
+       
         const dataPoints = Object.keys(row).map(key => {
-          if (key.includes('Q')) { // Only process the properties representing quarters
+          if (key.includes('Q')) { 
             return {
               quarter: key,
               value: parseFloat(row[key].replace(',', '.'))
             };
           }
-        }).filter(Boolean); // Remove undefined values
+        }).filter(Boolean); 
 
         const data = new GdpData({
           TIME: row['TIME'],
@@ -53,17 +52,16 @@ const routes = (app) => {
         const result = await data.save();
         results.push(result);
       }
-
-      serverResponses.sendSuccess(res, messages.SUCCESSFUL, results);
+      res.status(200).json({ message: " SUCCESSFUL ", data: results });
     } catch (e) {
       console.error(e);
-      serverResponses.sendError(res, messages.BAD_REQUEST, e);
+      res.status(500).json({ message: e.message });
     }
   });
 
 
 
-//flights data
+
   router.get('/gdp-data2', async (req, res) => {
     try {
       const data = await FlightsData.find();
@@ -78,7 +76,7 @@ const routes = (app) => {
       const count = await FlightsData.countDocuments({});
 
       if (count > 0) {
-        serverResponses.sendError(res, messages.ALREADY_EXIST, 'Collection is not empty');
+        res.status(400).json({ message: "Already exists" });
         return;
       }
 
@@ -86,19 +84,18 @@ const routes = (app) => {
       const results = [];
 
       for await (const row of stream) {
-        console.log('Row from CSV:', row); // Log the row from the CSV file
+        console.log('Row from CSV:', row); 
 
-        // Create an array of data points for each quarter
-        // Create an array of data points for each month
+      
         const dataPoints = Object.keys(row).map(key => {
-          // Only process the properties representing months
+   
           if (key.includes('-')) {
             return {
               Month: key,
               value: parseFloat(row[key].replace(/\s/g, ''))
             };
           }
-        }).filter(Boolean); // Remove undefined values
+        }).filter(Boolean); 
 
         const data = new FlightsData({
           TIME: row['TIME'],
@@ -109,14 +106,13 @@ const routes = (app) => {
         results.push(result);
       }
 
-      serverResponses.sendSuccess(res, messages.SUCCESSFUL, results);
+      res.status(200).json({ message: " SUCCESSFUL ", data: results });
     } catch (e) {
       console.error(e);
-      serverResponses.sendError(res, messages.BAD_REQUEST, e);
+      res.status(500).json({ message: e.message });
     }
   });
-  //it's a prefix before api it is useful when you have many modules and you want to
-  //differentiate b/w each module you can use this technique
+
   app.use("/api", router);
 };
 module.exports = routes;

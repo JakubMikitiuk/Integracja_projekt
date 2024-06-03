@@ -10,7 +10,7 @@ const ChartComponent = ({ fetchedData, combinedData, isLogScale}) => {
 
     const firstDataPoint = combinedData[0];
     console.log('First data point:', firstDataPoint);
-   // Check if the date includes 'Q'
+
     const isQuarterlyData = firstDataPoint && firstDataPoint.quarter && firstDataPoint.quarter.includes('Q');
 
   return (

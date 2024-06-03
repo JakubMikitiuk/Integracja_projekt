@@ -6,22 +6,30 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import SelectedCountryChart from './components/ChartSelected.js';
 import CountrySelector from './components/Selector.js';
-
+import { Route, Routes, Navigate } from "react-router-dom";
+import Signup from "./components/Signup";
+import Login from "./components/Login";
 
 
 
 function App() {
 
+  const user = localStorage.getItem("token");
+
   const [selectedCountry, setSelectedCountry] = useState('Poland');
   const [fetchedData, setFetchedData] = useState(new Map());
   const [fetchedData2, setFetchedData2] = useState(new Map());
-  const [min, setMin] = useState(0);
-  const [max, setMax] = useState(1);
   const [combinedData, setCombinedData] = useState([]);
   const [combinedData2, setCombinedData2] = useState([]);
   const [activeData, setActiveData] = useState([]);
   const [activeFetchData, setFetchActiveData] = useState([]);
   const [isLogScale, setIsLogScale] = useState(false);
+
+
+
+
+
+
 
 
 
@@ -66,7 +74,7 @@ function App() {
     });
     console.log('Combined data2:', combinedData2);
     setCombinedData2(combinedData2);
-    if (!activeData.length) { // Only set activeData if it's not already set
+    if (!activeData.length) {
       setFetchActiveData(fetchedData2);
       setActiveData(combinedData2);
     }
@@ -75,6 +83,8 @@ function App() {
   const toggleScale = () => {
     setIsLogScale(!isLogScale);
   };
+
+
 
   const handleDownloadALL = () => {
     const dataStr = JSON.stringify(activeData);
@@ -176,27 +186,43 @@ function App() {
         <NavbarComponent />
       </nav>
 
+      {user ? (
+        <><div className="container pt-5 mt-3 d-flex flex-column justify-content-center align-items-center" style={{ height: 'calc(100vh - 56px)' }}>
+          <div className="d-flex">
+            <button className="btn btn-primary mr-2" onClick={swapData}>Swap Data</button>
+            <button className="btn btn-secondary" onClick={toggleScale}>Toggle Scale</button>
+            <button className="btn btn-info ml-2" onClick={handleDownloadALL}>Download Data</button>
+          </div>
 
-      <div className="container pt-5 mt-3 d-flex flex-column justify-content-center align-items-center" style={{ height: 'calc(100vh - 56px)' }}>
-        <div className="d-flex">
-          <button className="btn btn-primary mr-2" onClick={swapData}>Swap Data</button>
-          <button className="btn btn-secondary" onClick={toggleScale}>Toggle Scale</button>
-          <button className="btn btn-info ml-2" onClick={handleDownloadALL}>Download Data</button>
-        </div>
+          <h2 className="mt-3">Chart for every country</h2>
+          <ChartComponent fetchedData={activeFetchData} combinedData={activeData} isLogScale={isLogScale} />
+        </div><div className="container pt-5 mt-3 d-flex flex-column justify-content-center align-items-center" style={{ height: 'calc(100vh - 56px)' }}>
+            <CountrySelector selectedCountry={selectedCountry} handleCountryChange={handleCountryChange} fetchedData={activeFetchData} />
+            <div className="d-flex">
+              <button className="btn btn-primary mr-2" onClick={swapData}>Swap Data</button>
+              <button className="btn btn-secondary" onClick={toggleScale}>Toggle Scale</button>
+              <button className="btn btn-info ml-2" onClick={handleDownload}>Download Data</button>
+            </div>
+            <h2 className="mt-3">Chart for {selectedCountry}</h2>
+            <SelectedCountryChart selectedCountry={selectedCountry} combinedData={activeData} isLogScale={isLogScale} />
+          </div>
 
-        <h2 className="mt-3">Chart for every country</h2>
-        <ChartComponent fetchedData={activeFetchData} combinedData={activeData} isLogScale={isLogScale} />
-      </div>
-      <div className="container pt-5 mt-3 d-flex flex-column justify-content-center align-items-center" style={{ height: 'calc(100vh - 56px)' }}>
-        <CountrySelector selectedCountry={selectedCountry} handleCountryChange={handleCountryChange} fetchedData={activeFetchData} />
-        <div className="d-flex">
-          <button className="btn btn-primary mr-2" onClick={swapData}>Swap Data</button>
-          <button className="btn btn-secondary" onClick={toggleScale}>Toggle Scale</button>
-          <button className="btn btn-info ml-2" onClick={handleDownload}>Download Data</button>
-        </div>
-        <h2 className="mt-3">Chart for {selectedCountry}</h2>
-        <SelectedCountryChart selectedCountry={selectedCountry} combinedData={activeData} isLogScale={isLogScale} />
-      </div>
+        </>
+
+
+
+      ) : (
+        <Routes>
+          <Route path="/signup" exact element={<Signup />} />
+          <Route path="/login" exact element={<Login />} />
+          <Route path="/" element={<Navigate replace to="/login" />} />
+        </Routes>
+
+      )}
+
+
+
+
     </div>
   );
 }

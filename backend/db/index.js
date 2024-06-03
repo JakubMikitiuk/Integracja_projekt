@@ -1,6 +1,4 @@
-/**
- * Created by Syed Afzal
- */
+
 const mongoose = require("mongoose");
 require("dotenv").config();
 
@@ -8,8 +6,8 @@ require("dotenv").config();
 exports.connect = (app) => {
   const options = {
     useNewUrlParser: true,
-    autoIndex: false, // Don't build indexes
-      maxPoolSize: 10, // Maintain up to 10 socket connections
+    autoIndex: false, 
+      maxPoolSize: 10, 
   };
 
   const connectWithRetry = () => {

@@ -1,6 +1,3 @@
-/**
- * Created by Syed Afzal
- */
 
 
 const express = require("express");
@@ -11,9 +8,12 @@ const cors = require("cors");
 const db = require("./db");
 
 const app = express();
+const userRoutes = require("./routes/users");
+const authRoutes = require("./routes/auth");
 
-//connection from db here
 db.connect(app);
+
+
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -23,6 +23,8 @@ app.use(express.static(path.join(__dirname, "public")));
 
 //  adding routes
 require("./routes")(app);
+app.use("/api/users", userRoutes);
+app.use("/api/auth", authRoutes);
 
 app.on("ready", () => {
   app.listen(3000, () => {
